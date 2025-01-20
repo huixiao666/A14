@@ -1,0 +1,1269 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="皮卡商店 - 应用下载平台">
+    <title>皮卡商店</title>
+    <style>
+        :root {
+            --primary-color: #333;
+            --background-color: #f5f5f5;
+            --shadow-color: rgba(0, 0, 0, 0.1);
+            --text-color: #666;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background-color: var(--background-color);
+            line-height: 1.6;
+        }
+
+        .header {
+            position: sticky;
+            top: 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem;
+            background-color: #fff;
+            box-shadow: 0 2px 5px var(--shadow-color);
+            z-index: 1000;
+        }
+
+        .search-bar {
+            display: flex;
+            gap: 0.5rem;
+            flex: 1;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .search-bar input {
+            flex: 1;
+            padding: 0.5rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 1rem;
+        }
+
+        .search-bar button {
+            padding: 0.5rem 1rem;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .search-bar button:hover {
+            background-color: #0056b3;
+        }
+        
+        
+
+        .nav {
+            display: flex;
+            gap: 1rem;
+            padding: 1rem;
+            background-color: #fff;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .nav a {
+            color: var(--primary-color);
+            text-decoration: none;
+            white-space: nowrap;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            transition: background-color 0.2s;
+        }
+
+        .nav a:hover {
+            background-color: #f0f0f0;
+        }
+
+        .app-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 1.5rem;
+            padding: 1.5rem;
+        }
+
+        .app-item {
+            display: flex;
+            align-items: center;
+            background-color: #fff;
+            border-radius: 12px;
+            padding: 1rem;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .app-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px var(--shadow-color);
+        }
+
+        .app-icon {
+            width: 64px;
+            height: 64px;
+            border-radius: 12px;
+            object-fit: cover;
+            margin-right: 1rem;
+        }
+
+        .app-info {
+            flex: 1;
+        }
+
+        .app-name {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+
+        .app-name a {
+            color: inherit;
+            text-decoration: none;
+        }
+
+        .app-category {
+            font-size: 0.9rem;
+            color: var(--text-color);
+            margin-bottom: 0.25rem;
+        }
+
+        .rating {
+            font-size: 0.9rem;
+            color: var(--text-color);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .floating-button {
+            position: fixed;
+            right: 1.5rem;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background-color: #fff;
+            border: none;
+            box-shadow: 0 2px 8px var(--shadow-color);
+            cursor: pointer;
+            transition: background-color 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+        }
+
+        .floating-refresh {
+            composes: floating-button;
+            bottom: 5.5rem;
+        }
+
+        .floating-top {
+            composes: floating-button;
+            bottom: 15rem;
+        }
+
+        .floating-button:hover {
+            background-color: #f0f0f0;
+        }
+
+        @media (max-width: 768px) {
+            .app-list {
+                grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+                gap: 1rem;
+                padding: 1rem;
+            }
+
+            .app-icon {
+                width: 48px;
+                height: 48px;
+            }
+
+            .app-name {
+                font-size: 1rem;
+            }
+        }
+
+        /* 添加深色模式支持 */
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --primary-color: #fff;
+                --background-color: #1a1a1a;
+                --shadow-color: rgba(0, 0, 0, 0.3);
+                --text-color: #999;
+            }
+
+            body {
+                color: var(--primary-color);
+            }
+
+            .header,
+            .nav,
+            .app-item {
+                background-color: #2d2d2d;
+            }
+
+            .search-bar input {
+                background-color: #333;
+                color: var(--primary-color);
+                border-color: #444;
+            }
+        }
+        
+        .sidebar {
+    position: fixed;
+    top: 0;
+    left: -280px;
+    width: 280px;
+    height: 100vh;
+    background-color: #fff;
+    box-shadow: 2px 0 8px var(--shadow-color);
+    transition: transform 0.3s ease;
+    overflow-y: auto;
+    z-index: 1001;
+    padding: 1rem 0;
+}
+
+.sidebar.active {
+    transform: translateX(280px);
+}
+
+.sidebar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 1rem 1rem;
+    border-bottom: 1px solid #eee;
+    margin-bottom: 1rem;
+}
+
+.sidebar-close {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    padding: 0.5rem;
+    color: var(--primary-color);
+}
+
+.sidebar-menu {
+    list-style: none;
+}
+
+.sidebar-menu li {
+    margin: 0.5rem 0;
+}
+
+.sidebar-menu a {
+    display: block;
+    padding: 0.75rem 1rem;
+    color: var(--primary-color);
+    text-decoration: none;
+    transition: background-color 0.2s;
+}
+
+.sidebar-menu a:hover {
+    background-color: #f0f0f0;
+}
+
+.sidebar-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: none;
+    z-index: 1000;
+    backdrop-filter: blur(2px);
+}
+
+/* 深色模式支持 */
+@media (prefers-color-scheme: dark) {
+    .sidebar {
+        background-color: #2d2d2d;
+    }
+    
+    .sidebar-header {
+        border-bottom-color: #444;
+    }
+    
+    .sidebar-menu a:hover {
+        background-color: #3d3d3d;
+    }
+}
+
+/* 触摸设备优化 */
+@media (hover: none) {
+    .sidebar-menu a:active {
+        background-color: #f0f0f0;
+    }
+}
+
+/* 修改侧滑菜单按钮样式 */
+.toggle-sidebar {
+    font-size: 2rem; /* 增大字体大小 */
+    padding: 0.8rem;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--primary-color);
+    width: 60px; /* 增加按钮宽度 */
+    height: 60px; /* 增加按钮高度 */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: background-color 0.2s;
+}
+
+.toggle-sidebar:hover {
+    background-color: rgba(0, 0, 0, 0.1);
+}
+
+/* 修改浮动按钮样式 */
+.floating-button {
+    position: fixed;
+    right: 1.5rem;
+    width: 60px; /* 增加按钮宽度 */
+    height: 60px; /* 增加按钮高度 */
+    border-radius: 50%;
+    background-color: #fff;
+    border: none;
+    box-shadow: 0 2px 8px var(--shadow-color);
+    cursor: pointer;
+    transition: background-color 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.8rem; /* 增大字体大小 */
+}
+
+/* 浮动按钮基础样式 */
+.floating-button {
+    position: fixed;
+    right: 1.5rem;
+    width: 60px; /* 增大按钮尺寸 */
+    height: 60px;
+    border-radius: 50%;
+    background-color: #fff;
+    border: none;
+    box-shadow: 0 2px 8px var(--shadow-color);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.8rem; /* 增大图标尺寸 */
+    z-index: 999;
+}
+
+/* 刷新按钮位置 */
+.floating-refresh {
+    bottom: 6.5rem;
+}
+
+/* 返回顶部按钮位置 */
+.floating-top {
+    bottom: 1.5rem;
+}
+
+/* 按钮悬停效果 */
+.floating-button:hover {
+    background-color: #f0f0f0;
+    transform: scale(1.1);
+}
+
+/* 深色模式支持 */
+@media (prefers-color-scheme: dark) {
+    .floating-button {
+        background-color: #2d2d2d;
+        color: var(--primary-color);
+    }
+
+    .floating-button:hover {
+        background-color: #3d3d3d;
+    }
+}
+
+/* 移动设备适配 */
+@media (max-width: 768px) {
+    .floating-button {
+        width: 50px;
+        height: 50px;
+        font-size: 1.5rem;
+        right: 1rem;
+    }
+
+    .floating-refresh {
+        bottom: 5.5rem;
+    }
+
+    .floating-top {
+        bottom: 1rem;
+    }
+}
+
+</style>
+
+<style>
+.card-container {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 20px;
+        justify-content: center;
+    }
+    
+    .card {
+    display: block;
+}
+
+    .card {
+        background: #fff;
+        border-radius: 10px;
+        padding: 20px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        margin-bottom: 20px;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        flex-basis: calc(33.333% - 20px); /* 默认为三列布局 */
+        max-width: calc(33.333% - 20px);
+    }
+
+    .card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+    }
+
+    .card-title {
+        font-size: 20px;
+        margin-bottom: 10px;
+        color: #1a73e8;
+    }
+
+    .card-content {
+        margin-bottom: 10px;
+    }
+
+    .card-info {
+        margin-bottom: 5px;
+        font-size: 14px;
+        color: #666;
+    }
+
+    .download-btn {
+        display: inline-block;
+        background: #1a73e8;
+        color: white;
+        padding: 8px 15px;
+        text-decoration: none;
+        border-radius: 5px;
+        margin-top: 10px;
+    }
+
+    .hidden {
+        display: none;
+    }
+
+    @media (max-width: 767px) {
+        .card {
+            flex-basis: calc(100% - 20px); /* 小屏幕为单列布局 */
+            max-width: calc(100% - 20px);
+        }
+    }
+
+    @media (min-width: 768px) and (max-width: 991px) {
+        .card {
+            flex-basis: calc(50% - 20px); /* 中等屏幕为两列布局 */
+            max-width: calc(50% - 20px);
+        }
+    }
+
+    @media (min-width: 992px) {
+        .card {
+            flex-basis: calc(25% - 20px); /* 大屏幕为四列布局 */
+            max-width: calc(25% - 20px);
+        }
+        
+        
+    </style>
+    
+    <style>
+    .download-btn {
+        display: inline-block;
+        background: #1a73e8;
+        color: white;
+        padding: 8px 15px;
+        text-decoration: none;
+        border-radius: 5px;
+        margin-top: 10px;
+    }
+    </style>
+    
+    <style>
+    /* 深色模式支持 */
+@media (prefers-color-scheme: dark) {
+    .card {
+        background-color: #2d2d2d; /* 深色背景 */
+        color: #fff; /* 白色文本 */
+    }
+
+    .card-title {
+        color: #1a73e8; /* 保持标题颜色 */
+    }
+
+    .card-info {
+        color: #bbb; /* 更浅的文本颜色 */
+    }
+
+    .download-btn {
+        background: #1a73e8; /* 下载按钮颜色 */
+        color: white; /* 按钮文本颜色 */
+    }
+
+    .download-btn:hover {
+        background: #1a5bb8; /* 按钮悬停效果 */
+    }
+}
+    </style>
+</head>
+<body>
+    <header class="header">
+        <button class="toggle-sidebar" aria-label="菜单" onclick="toggleSidebar()">☰</button>
+        <div class="search-bar">
+    <input type="text" id="searchInput" placeholder="搜索应用" aria-label="搜索应用">
+    <button onclick="performSearch()">搜索</button>
+</div>
+    </header>
+
+    <nav class="nav">
+        <a href="https://huixiao666.github.io/A/">首页</a>
+        <a href="https://huixiao666.github.io/A1/">吃瓜</a>
+        <a href="https://huixiao666.github.io/A3/">车牌</a>
+        <a href="https://huixiao666.github.io/A2/">电脑</a>
+        <a href="https://huixiao666.github.io/A4/">搜图</a>
+        <a href="https://huixiao666.github.io/A6/">更新</a>
+        <a href="https://huixiao666.github.io/A7/">视频</a>
+    </nav>
+
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <h2>搜索导航</h2>
+            <button class="sidebar-close" onclick="toggleSidebar()" aria-label="关闭菜单">×</button>
+        </div>
+        <ul class="sidebar-menu">
+            <li><a href="https://baidu.com">百度</a></li>
+            <li><a href="https://m.sogou.com/">搜狗</a></li>
+            <li><a href="https://m.so.com/">360</a></li>
+            <li><a href="https://www.google.com">谷歌</a></li>
+            <li><a href="https://www.bing.com">bing</a></li>
+            <li><a href="https://search.yahoo.com/">yahoo</a></li>
+            <li><a href="https://www.ask.com/">ask</a></li>
+            <li><a href="https://duckduckgo.com/">duckduckgo</a></li>
+            <li><a href="https://yandex.com/">俄罗斯</a></li>
+            <li><a href="https://www.cilimiao.cn/">BT磁链</a></li>
+            <li><a href="http://lemonuo.top/">磁力柠檬</a></li>
+            <li><a href="https://theporndude.com/zh/top-porn-tube-sites">免费成人涩情网站</a></li>
+            <li><a href="https://theporndude.com/zh/hentai-streaming-sites">免费动漫涩情网站</a></li>
+            <li><a href="https://www.xbookcn.net/">成人中文免费小说</a></li>
+            <li><a href="http://www.caoliuxs.vip/">成人免费草榴小说</a></li>
+            <li><a href="https://sesebooks.com/">免费成人黄涩小说</a></li>
+            <li><a href="https://www.fanqianglu.com/free/cnnovel">免费成人涩情小说最全</a></li>
+            <li><a href="#">涩情性爱故事网站</a></li>
+        </ul>
+    </aside>
+
+    <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+        <!-- 侧边栏内容 -->
+    </aside>
+
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <main class="app-list">
+        <article class="app-item">
+            <div class="card-container" id="cardContainer">
+        <!-- 卡片内容 -->
+        <div class="card">
+            <div class="card-header">鹊桥VPN.apk</div>
+            <div class="card-content">
+                <p>内置随机ID，用完重置无限白嫖。每次3天</p>
+                <a href="https://share.feijipan.com/s/0wCzwubF" class="download-btn">下载</a>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-header">笔趣阁纯净版.apk</div>
+            <div class="card-content">
+                <a href="https://share.feijipan.com/s/OUCzynqk" class="download-btn">下载</a>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-header">书旗小说v12.2.2本地会员版@𝒇𝒖𝒏_𝒂𝒑𝒌</div>
+            <div class="card-content">
+                <a href="https://share.feijipan.com/s/2pCzf0oH" class="download-btn">下载</a>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-header">AI动漫头像生成_1.71.32.apk</div>
+            <div class="card-content">
+                <p>用不了，挂VPN</p>
+                <a href="https://share.feijipan.com/s/CuCzzSMF" class="download-btn">下载</a>
+            </div>
+        </div>
+        
+        <div class="card">
+            <div class="card-header">概念画板v2024.08.5高级版@𝒇𝒖𝒏_𝒂𝒑𝒌</div>
+            <div class="card-content">
+                <a href="https://share.feijipan.com/s/zNCzfcVz" class="download-btn">下载</a>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-header">囧次元去广告.apk</div>
+            <div class="card-content">
+                <a href="https://share.feijipan.com/s/xOCzjG0k" class="download-btn">下载</a>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-header">kk键盘.apk</div>
+            <div class="card-content">
+                <a href="https://share.feijipan.com/s/mgCzjrZg" class="download-btn">下载</a>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-header">追书神器v4.85.53纯净版@𝒇𝒖𝒏_𝒂𝒑𝒌</div>
+            <div class="card-content">
+                <a href="https://share.feijipan.com/sVGCzm8w0" class="download-btn">下载</a>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-header">影剪辑视频编辑v1_6_8高级版@𝒇𝒖𝒏_𝒂𝒑𝒌</div>
+            <div class="card-content">
+                <a href="https://share.feijipan.com/s/CDCzmI2H" class="download-btn">下载</a>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-header">爱笔思画X_v12.2.1高级版@𝒇𝒖𝒏_𝒂𝒑𝒌</div>
+            <div class="card-content">
+                <a href="https://share.feijipan.com/s/EdCznbvM" class="download-btn">下载</a>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-header">个人图书馆v7.6.7高级版@𝒇𝒖𝒏_𝒂𝒑𝒌</div>
+            <div class="card-content">
+                <a href="https://share.feijipan.com/s/zjCznS1N" class="download-btn">下载</a>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-header">小马模拟器_2_56_比小鸡模拟器更好用的免费模拟器</div>
+            <div class="card-content">
+                <a href="https://share.feijipan.com/s/uhCzpUb4" class="download-btn">下载</a>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-header">星神少女.apk</div>
+            <div class="card-content">
+                <a href="https://share.feijipan.com/s/oYC5ZO62" class="download-btn">下载</a>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-header">与女大学生的同居生活.apk</div>
+            <div class="card-content">
+                <a href="https://share.feijipan.com/s/5JCxwKZh" class="download-btn">下载</a>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-header">橙子喵酱【65套合集】</div>
+            <div class="card-content">
+                <a href="magnet:?xt=urn:btih:759667A96551582D51FCB8959B0A63D30798F03C&x._t-v1=532804206747190633" class="download-btn">下载</a>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-header">三只羊</div>
+            <div class="card-content">
+                <a href="https://share.feijipan.com/s/KUCzGwOR" class="download-btn">下载</a>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-header">聆韵听书_1.0.7_去广告</div>
+            <div class="card-content">
+                <a href="https://share.feijipan.com/s/yMCg0q8h" class="download-btn">下载</a>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-header">拷贝漫画 v2.3.3去广告纯净版</div>
+            <div class="card-content">
+                <a href="https://share.feijipan.com/s/uwCg0IsW" class="download-btn">下载</a>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-header">次元站v1.2.4.5纯净版@𝒇𝒖𝒏_𝒂𝒑𝒌</div>
+            <div class="card-content">
+                <a href="https://share.feijipan.com/s/1ICgMEXf" class="download-btn">下载</a>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-header">今日头条v10.0.1纯净版@𝒇𝒖𝒏_𝒂𝒑𝒌</div>
+            <div class="card-content">
+                <a href="https://share.feijipan.com/s/zACgMOFr" class="download-btn">下载</a>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-header">考霸刷题宝v1.6.6高级版@𝒇𝒖𝒏_𝒂𝒑𝒌</div>
+            <div class="card-content">
+                <a href="https://share.feijipan.com/s/b5CgMMPS" class="download-btn">下载</a>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-header">轻瑜伽_v1.0.2</div>
+            <div class="card-content">
+                <a href="https://share.feijipan.com/s/JmCgMQBD" class="download-btn">下载</a>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-header">趣头条v3.20.61去广告@𝒇𝒖𝒏_𝒂𝒑𝒌</div>
+            <div class="card-content">
+                <a href="https://share.feijipan.com/s/KcCgM2eS" class="download-btn">下载</a>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-header">速度下载 Ver.1.0.8 会员解锁版</div>
+            <div class="card-content">
+                <a href="https://share.feijipan.com/s/xXCgNhNx" class="download-btn">下载</a>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-header">淘小说v10.2.2@𝒇𝒖𝒏_𝒂𝒑𝒌</div>
+            <div class="card-content">
+                <a href="https://share.feijipan.com/s/2ICgNS8x" class="download-btn">下载</a>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-header">扫描王全能宝v6.8.31高级版@𝒇𝒖𝒏_𝒂𝒑𝒌</div>
+            <div class="card-content">
+                <a href="https://share.feijipan.com/s/08CgOUwY" class="download-btn">下载</a>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-header">澎湃新闻v10.0.3纯净版@𝒇𝒖𝒏_𝒂𝒑𝒌</div>
+            <div class="card-content">
+                <a href="https://share.feijipan.com/s/6sCgOHsX" class="download-btn">下载</a>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-header">网易新闻v111.1绿色版@𝒇𝒖𝒏_𝒂𝒑𝒌</div>
+            <div class="card-content">
+                <a href="https://share.feijipan.com/s/geCgOP8q" class="download-btn">下载</a>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-header">腾讯微视v8.127.0.590纯净版@𝒇𝒖𝒏_𝒂𝒑𝒌</div>
+            <div class="card-content">
+                <a href="https://share.feijipan.com/s/zzCgOYiF" class="download-btn">下载</a>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-header">微剪辑v13.3.2会员版@𝒇𝒖𝒏_𝒂𝒑𝒌</div>
+            <div class="card-content">
+                <a href="https://share.feijipan.com/s/GICgOQZe" class="download-btn">下载</a>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-header">腾讯新闻v7.5.00纯净版@𝒇𝒖𝒏_𝒂𝒑𝒌</div>
+            <div class="card-content">
+                <a href="https://share.feijipan.com/s/MPCgO4rr" class="download-btn">下载</a>
+            </div>
+        </div>
+        <div class="card">
+                        <div class="card-header">小红书v8.52.0纯净版@𝒇𝒖𝒏_𝒂𝒑𝒌</div>
+            <div class="card-content">
+                <a href="https://share.feijipan.com/s/5PCgOaeQ" class="download-btn">下载</a>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-header">央视影音v7.9.11纯净版@𝒇𝒖𝒏_𝒂𝒑𝒌</div>
+            <div class="card-content">
+                <a href="https://share.feijipan.com/s/ZzCgO7Mk" class="download-btn">下载</a>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-header">最右v6.2.3纯净版@𝒇𝒖𝒏_𝒂𝒑𝒌</div>
+            <div class="card-content">
+                <a href="https://share.feijipan.com/s/VICgOgb8" class="download-btn">下载</a>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-header">P2P下载器Plus_v1.3.4高级版@𝒇𝒖𝒏_𝒂𝒑𝒌</div>
+            <div class="card-content">
+                <a href="https://share.feijipan.com/s/GpCgOiR2" class="download-btn">下载</a>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-header">pixiv_v6.122.0高级版@𝒇𝒖𝒏_𝒂𝒑𝒌</div>
+            <div class="card-content">
+                <p>挂梯子</p>
+                <a href="https://share.feijipan.com/s/AeCgOoSl" class="download-btn">下载</a>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-header">VMOS Pro_3.0.7(30007001)-opt@鹿蜀</div>
+            <div class="card-content">
+                <a href="https://share.feijipan.com/s/eLCgOrna" class="download-btn">下载</a>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-header">CCleaner Pro v24.18.0</div>
+            <div class="card-content">
+                <p>清理垃圾</p>
+                <a href="https://share.feijipan.com/s/HKCgOuDK" class="download-btn">下载</a>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-header">新浪新闻v8.30.4纯净版@𝒇𝒖𝒏_𝒂𝒑𝒌</div>
+            <div class="card-content">
+                <a href="https://share.feijipan.com/s/MgCgOLVO" class="download-btn">下载</a>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-header">Picturize It v1.2.0 PREMIUM</div>
+            <div class="card-content">
+                <p>图片转漫画</p>
+                <a href="https://share.feijipan.com/s/piCgOSnm" class="download-btn">下载</a>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-header">轻小说文库v1.21@𝒇𝒖𝒏_𝒂𝒑𝒌</div>
+            <div class="card-content">
+                <a href="https://share.feijipan.com/s/IACgPCPM" class="download-btn">下载</a>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-header">比特船v1.3.7去限制版@𝒇𝒖𝒏_𝒂𝒑𝒌</div>
+            <div class="card-content">
+                <a href="https://share.feijipan.com/s/rZCgPEjv" class="download-btn">下载</a>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-header">古诗文网 3.6.4</div>
+            <div class="card-content">
+                <a href="https://share.feijipan.com/s/AuCgPMas" class="download-btn">下载</a>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-header">星芽免费短剧3.6.0.1</div>
+            <div class="card-content">
+                <a href="https://share.feijipan.com/s/ckCgPZ4Y" class="download-btn">下载</a>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-header">樱花动漫v2_6_3第三方出品无广告@𝒇𝒖𝒏_𝒂𝒑𝒌</div>
+            <div class="card-content">
+                <a href="https://share.feijipan.com/s/jOCgP3bo" class="download-btn">下载</a>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-header">人妻博主</div>
+            <div class="card-content">
+                                <a href="https://share.feijipan.com/s/xoC8AbLG" class="download-btn">下载</a>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-header">神笔马良v2.3.6.8会员版@𝒇𝒖𝒏_𝒂𝒑𝒌</div>
+            <div class="card-content">
+                <a href="https://share.feijipan.com/s/18CgPdTv" class="download-btn">下载</a>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-header">AI_Browser_v1_1_8电视端浏览器@𝒇𝒖𝒏_𝒂𝒑𝒌</div>
+            <div class="card-content">
+                <a href="https://share.feijipan.com/s/JhCgP6pj" class="download-btn">下载</a>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-header">中草药宝典_v2.5</div>
+            <div class="card-content">
+                <a href="https://share.feijipan.com/s/ZYCgP7b9" class="download-btn">下载</a>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-header">环球时报v13.1.0@𝒇𝒖𝒏_𝒂𝒑𝒌</div>
+            <div class="card-content">
+                <a href="https://share.feijipan.com/s/dcCgPvIT" class="download-btn">下载</a>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-header">AuroraStore_4.6.1 第三方谷歌商店软件平台</div>
+            <div class="card-content">
+                <a href="https://share.feijipan.com/s/r6CgPg66" class="download-btn">下载</a>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-header">Avast Cleanup_v24.18.0(800010832) 清理垃圾软件</div>
+            <div class="card-content">
+                <a href="https://share.feijipan.com/s/vrCgPirz" class="download-btn">下载</a>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-header">GIF Maker v1.1.0 PREMIUM</div>
+            <div class="card-content">
+                <a href="https://share.feijipan.com/s/41CgPluV" class="download-btn">下载</a>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-header">WDownloader_1.5.38_视频下载器</div>
+            <div class="card-content">
+                <a href="https://share.feijipan.com/s/W2CgPoWU" class="download-btn">下载</a>
+            </div>
+        </div>
+         <div class="card">
+            <div class="card-header">绝区零 鲨鱼妹🦈 艾莲嗨纟</div>
+            <div class="card-content">
+                <a href="https://share.feijipan.com/s/lFCfcBEa" class="download-btn">下载</a>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-header">原神 甘雨 高质量</div>
+            <div class="card-content">
+                <a href="https://share.feijipan.com/s/3xCgxGE5" class="download-btn">下载</a>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-header">炼丹家AI解锁全部！</div>
+            <div class="card-content">
+                <p>登录就是VIP会员</p>
+                <a href="https://share.feijipan.com/s/c1CgxH64" class="download-btn">下载</a>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-header">抖音成人版</div>
+            <div class="card-content">
+                <a href="https://share.feijipan.com/s/M2CgxPyr" class="download-btn">下载</a>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-header">吃鸡成人版_9.9.9_解锁版</div>
+            <div class="card-content">
+                <a href="https://share.feijipan.com/s/C0CgxYmw" class="download-btn">下载</a>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-header">大湿兄-免费</div>
+            <div class="card-content">
+                <a href="https://share.feijipan.com/s/9rCgxWi0" class="download-btn">下载</a>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-header">免费推特</div>
+            <div class="card-content">
+                <a href="https://share.feijipan.com/s/mvCgx2y6" class="download-btn">下载</a>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-header">十八摸_9.9.9_解锁版</div>
+            <div class="card-content">
+                <a href="https://share.feijipan.com/s/NeCgxan5" class="download-btn">下载</a>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-header">陌陌视频</div>
+            <div class="card-content">
+                <a href="https://share.feijipan.com/s/CACgx6Iy" class="download-btn">下载</a>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-header">糖心破解版</div>
+            <div class="card-content">
+                <a href="https://share.feijipan.com/s/CwCgx9ih" class="download-btn">下载</a>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-header">xcartoon</div>
+            <div class="card-content">
+                <p>正经漫画</p>
+                <a href="https://share.feijipan.com/s/JGCgxfPB" class="download-btn">下载</a>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-header">XVIDEOS_9.9.9</div>
+            <div class="card-content">
+                <a href="https://share.feijipan.com/s/AdCgxhnO" class="download-btn">下载</a>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-header">Pronhub免费</div>
+            <div class="card-content">
+                <a href="https://share.feijipan.com/s/AdCgxsmA" class="download-btn">下载</a>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-header">SOUL免费破解版</div>
+            <div class="card-content">
+                <a href="https://share.feijipan.com/s/wdCgxuFu" class="download-btn">下载</a>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-header">SWAG_9.9.9_解锁版</div>
+            <div class="card-content">
+                <a href="https://share.feijipan.com/s/cWCgyTyp" class="download-btn">下载</a>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-header">YouTube成人版</div>
+            <div class="card-content">
+                <a href="https://share.feijipan.com/s/1ICgyCYP" class="download-btn">下载</a>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-header">触手的爱巢冷狐版</div>
+            <div class="card-content">
+                <a href="https://share.feijipan.com/s/ysCgyW2Z" class="download-btn">下载</a>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-header">痴漢的猎物1.0</div>
+            <div class="card-content">
+                <a href="https://share.feijipan.com/s/JlCgy3Og" class="download-btn">下载</a>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-header">阿米莉多次堕落</div>
+            <div class="card-content">
+                <a href="https://share.feijipan.com/s/jICgycOq" class="download-btn">下载</a>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-header">八代木津奈1.0XY版安卓</div>
+            <div class="card-content">
+                <a href="https://share.feijipan.com/s/AMCgy7cJ" class="download-btn">下载</a>
+            </div>
+        </div>
+        <div class="card">
+            
+            <div class="card-header">家出少女 One room</div>
+            <div class="card-content">
+                <a href="https://share.feijipan.com/s/YxCgy9nc" class="download-btn">下载</a>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-header">花痴驯兽师0.57</div>
+            <div class="card-content">
+                <a href="https://share.feijipan.com/s/6vCgyvf9" class="download-btn">下载</a>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-header">公共生活H0.78</div>
+            <div class="card-content">
+                <a href="https://share.feijipan.com/s/JqCgyxEH" class="download-btn">下载</a>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-header">塔楼1.0</div>
+            <div class="card-content">
+                <a href="https://share.feijipan.com/s/tbCgyf9H" class="download-btn">下载</a>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-header">揭开八月的面纱0.3.04</div>
+            <div class="card-content">
+                <a href="https://share.feijipan.com/s/sBCgyhZW" class="download-btn">下载</a>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-header">Devil Girl</div>
+            <div class="card-content">
+                <a href="https://share.feijipan.com/s/2KCgyj2u" class="download-btn">下载</a>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-header">りとラブ_ダウナー少女が甘え狂うラブラブ純愛なほんのり甘い恋の調べ_v1_0</div>
+            <div class="card-content">
+                <a href="https://share.feijipan.com/s/NwCgylFm" class="download-btn">下载</a>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-header">乳魔之馆安卓</div>
+            <div class="card-content">
+                <a href="https://share.feijipan.com/s/vtCgyoGf" class="download-btn">下载</a>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-header">怪异觉风录v1.01</div>
+            <div class="card-content">
+                <a href="https://share.feijipan.com/s/SPCgyqmA" class="download-btn">下载</a>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-header">学校怪谈修复版</div>
+            <div class="card-content">
+                <a href="https://share.feijipan.com/s/dkCgyrPs" class="download-btn">下载</a>
+            </div>
+        </div>
+        
+            </article>
+    </main>
+
+    <button class="floating-button floating-refresh" onclick="refreshPage()" aria-label="刷新页面">↻</button>
+<button class="floating-button floating-top" onclick="scrollToTop()" aria-label="返回顶部">↑</button>
+
+<script>
+// 防抖函数
+function debounce(func, wait) {
+    let timeout;
+    return function (...args) {
+        clearTimeout(timeout);
+        timeout = setTimeout(() => func.apply(this, args), wait);
+    };
+}
+
+// 统一的搜索功能实现
+const performSearch = debounce(() => {
+    const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+    const cards = document.querySelectorAll('.card');
+
+    cards.forEach(card => {
+        const cardHeader = card.querySelector('.card-header')?.textContent.toLowerCase() || '';
+        const cardContent = card.querySelector('.card-content')?.textContent.toLowerCase() || '';
+        const isVisible = cardHeader.includes(searchTerm) || cardContent.includes(searchTerm);
+        card.style.display = isVisible ? 'block' : 'none';
+    });
+}, 300);
+
+// 添加搜索框事件监听
+document.addEventListener('DOMContentLoaded', () => {
+    // 搜索按钮点击事件
+    document.querySelector('.search-bar button').addEventListener('click', performSearch);
+    
+    // 搜索框回车事件
+    document.getElementById('searchInput').addEventListener('keyup', (event) => {
+        if (event.key === 'Enter') {
+            performSearch();
+        }
+    });
+});
+</script>
+<script>
+        
+        function toggleSidebar() {
+    const sidebar = document.getElementById('sidebar');
+    const sidebarOverlay = document.getElementById('sidebarOverlay');
+    const body = document.body;
+    
+    sidebar.classList.toggle('active');
+    
+    if (sidebar.classList.contains('active')) {
+        sidebarOverlay.style.display = 'block';
+        body.style.overflow = 'hidden'; // 防止背景滚动
+        
+        // 添加触摸滑动关闭支持
+        let startX = 0;
+        let currentX = 0;
+        
+        function handleTouchStart(e) {
+            startX = e.touches[0].clientX;
+        }
+        
+        function handleTouchMove(e) {
+            currentX = e.touches[0].clientX;
+            const diff = currentX - startX;
+            
+            if (diff < 0) {
+                sidebar.style.transform = `translateX(${diff}px)`;
+            }
+        }
+        
+        function handleTouchEnd() {
+            const diff = currentX - startX;
+            if (diff < -50) { // 如果滑动距离超过50px
+                toggleSidebar();
+            }
+            sidebar.style.transform = '';
+        }
+        
+        sidebar.addEventListener('touchstart', handleTouchStart);
+        sidebar.addEventListener('touchmove', handleTouchMove);
+        sidebar.addEventListener('touchend', handleTouchEnd);
+        
+    } else {
+        sidebarOverlay.style.display = 'none';
+        body.style.overflow = '';
+        
+        // 移除触摸事件监听
+        sidebar.removeEventListener('touchstart', handleTouchStart);
+        sidebar.removeEventListener('touchmove', handleTouchMove);
+        sidebar.removeEventListener('touchend', handleTouchEnd);
+    }
+}
+
+// 添加双击关闭功能
+document.getElementById('sidebar').addEventListener('dblclick', (e) => {
+    if (e.target.tagName !== 'A') { // 不是链接时才触发
+        toggleSidebar();
+    }
+});
+
+// 添加滑动手势支持
+let touchStartX = 0;
+document.addEventListener('touchstart', (e) => {
+    touchStartX = e.touches[0].clientX;
+});
+
+document.addEventListener('touchend', (e) => {
+    const touchEndX = e.changedTouches[0].clientX;
+    const diff = touchEndX - touchStartX;
+    
+    // 从屏幕左边缘向右滑动打开菜单
+    if (diff > 50 && touchStartX < 30) {
+        const sidebar = document.getElementById('sidebar');
+        if (!sidebar.classList.contains('active')) {
+            toggleSidebar();
+        }
+    }
+});
+    </script>
+    
+    <script>
+        function performSearch() {
+    var input = document.getElementById('searchInput');
+    var filter = input.value.toLowerCase();
+    var cardContainer = document.getElementById('cardContainer');
+    var cards = cardContainer.getElementsByClassName('card');
+
+    for (var i = 0; i < cards.length; i++) {
+        var card = cards[i];
+        var cardTitle = card.querySelector('.card-title').textContent.toLowerCase();
+        var cardInfo = card.querySelector('.card-info').textContent.toLowerCase();
+
+        if (cardTitle.includes(filter) || cardInfo.includes(filter)) {
+            card.classList.remove('hidden');
+        } else {
+            card.classList.add('hidden');
+        }
+    }
+}
+</script>
+
+<script>
+const performSearch = debounce(() => {
+    const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+    const cards = document.querySelectorAll('.card');
+
+    cards.forEach(card => {
+        const appName = card.querySelector('.app-name').textContent.toLowerCase();
+        const isVisible = appName.includes(searchTerm);
+        card.style.display = isVisible ? 'flex' : 'none';
+    });
+}, 300);
+</script>
+
+</body>
+</html>
